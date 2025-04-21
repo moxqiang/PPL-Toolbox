@@ -1,0 +1,76 @@
+Usage: java -jar <path to ChIA_PET.jar> [options]
+################################################################################
+A simple example
+java -jar ../PPL.jar \
+    --ligation_type res \
+    --genomefile $genome \
+    --fastq ${fq_dir}/${id}/${id}_1.fastq.gz \
+    --output ./ \
+    --prefix $id \
+    --start_step 1 \
+    --ligation_site dpnii \
+    --thread 12
+################################################################################
+Necessary settings:
+    --ligation_type	assay type:
+        linker or res, when linker mode is selected and restrictionsiteFile is appointed in the sametime, linker mode will be running
+    --GENOME_INDEX
+        the path of BWA index
+    --CHROM_SIZE_INFO
+        the file that contains the length of each chromosome, example file is in ChIA-PET_Tool_V3/chrInfo,
+        this is necessary for > step 2 analysis.
+        Note. please make sure chromosome name in this file is same as name in genome file!!!
+    --genomefile	genome fasta file path, needed for with --ligation_site and without --restrictionsiteFile
+    only needed for hichip data
+    --fastq	path of fastq file
+"res" type need:
+    --ligation_site
+        It can be the name of restriction enzyme, such as HindIII, MboI, DpnII, Bglii, Sau3AI, Hinf1, NlaIII, AluI
+        or the site of enzyme digestion, A^AGCTT, ^GATC, ^GATC, A^GATCT, G^ANTC, CATG^, AG^CT or others.
+        multipe restriction enzyme can be seperated by comma, such as G^ANTC,^GATC.
+        restriction site with '^' and contains 'ATCG' without other character!!!
+        if the genomic enzyme digestion file --restrictionsiteFile is provided,
+        this parameter does not need to be provided.
+    --restrictionsiteFile
+        restriction site file, can be genarated while has --ligation_site and without this paramater or
+        provide restriction enzyme information with --ligation_site, we will automatically generate the file.
+        only needed for hichip data
+"linker" type need (testing):
+    --linker	path of linker file, need for ChIA-PET mode
+################################################################################
+Optional settings(commonly):
+    --splitReads	Only for linker mode, N or Y
+    --start_step
+        start with which step,
+            1: virtual restriction;
+            2: mapping to genome, assigning virtual fragment and generating aligntable;
+            3: filtering, all mappings are tagged with different types;
+            4: extracting gaps and generating gaps.fastq;
+            5: mapping gaps.fastq to genome;
+            6: filtering gaps.alignmentable;
+            7: merging results.
+            default: 1
+    --stop_step
+        stop with which step
+    --filter res/N default: res
+        used in step3, when res filter is used, the mappings whose have good mapq but boundaries are not good will be tagged as
+        "unconfident", if
+    --output	path of output, default: ./
+    --prefix	prefix of output files, default: out
+    --resRemove remove adjacent contacts by fragment ID.
+    --disRemove remove close contacts by position.
+        --distanceCutoff default: 1000bp.
+    --isolatedRemove remove isolated contacts by position.
+        --distanceCutoff2 default: 1000000bp.
+    --skipmap	skip mapping read1 and read2, start from paired R1.sam and R2.sam, only valid in HiChIP mode now. default: N
+    --cutoffMapq	cutoff of mapping quality score for filtering out low-quality or multiply-mapped reads, default: 20
+    --mergeM only used in split mode
+        Merge two mappings, when distance of two mappings on read < the value, default: 15
+    --mergeL only used in split mode
+        Merge two mappings, when distance of two mappings on genome < the value, default: 30
+    --cutoffFrag	ratio cutoff, used when annotate alignments with virtual enzyme fragments, default: 0.5
+    --aligner	bwasw, minimap2 or falign please, default minimap2
+    --alignerPath	When you want to select a aligner in different version, input the path.
+        eg. /home/zjwang/minimap2_1.0/minimap2
+    --refineBoundary default:Y
+################################################################################
